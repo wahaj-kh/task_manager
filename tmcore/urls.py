@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('tasks.urls')),  # This hooks up our tasks app routing!
+    path('', include('tasks.urls')),  
 ]

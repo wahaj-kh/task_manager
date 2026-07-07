@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Workflow Manager</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { margin: 0; color: #2c3e50; }
+        .btn { background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn:hover { background-color: #2980b9; }
+        .task-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 5px solid #bdc3c7; }
+        .task-card.High { border-left-color: #e74c3c; }
+        .task-card.Medium { border-left-color: #f1c40f; }
+        .task-card.Low { border-left-color: #2ecc71; }
+        .task-header { display: flex; justify-content: space-between; align-items: center; }
+        .task-title { margin: 0; font-size: 1.2em; color: #2c3e50; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; text-transform: uppercase; }
+        .badge-status { background-color: #e0e0e0; color: #333; }
+        .badge-priority { background-color: #34495e; color: white; }
+        .task-meta { margin-top: 10px; font-size: 0.9em; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Task Workflow Board</h1>
+            <a href="{% url 'create_task' %}" class="btn">+ Create New Task</a>
+        </header>
+
+        {% if tasks %}
+            {% for task in tasks %}
+                <div class="task-card {{ task.priority }}">
+                    <div class="task-header">
+                        <h3 class="task-title">{{ task.title }}</h3>
+                        <div>
+                            <span class="badge badge-status">{{ task.status }}</span>
+                            <span class="badge badge-priority">{{ task.priority }} Priority</span>
+                        </div>
+                    </div>
+                    <p style="margin: 10px 0 0 0; color: #555;">{{ task.description }}</p>
+                    <div class="task-meta">
+                        <strong>Category:</strong> {{ task.category }} | <strong>Created:</strong> {{ task.created_at|date:"M d, Y H:i" }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; margin-top: 50px; color: #7f8c8d;">
+                <h3>No tasks tracking records found. Click create above to add your first workflow item!</h3>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
