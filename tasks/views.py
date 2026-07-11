@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task
 from .ai_engine import analyze_task_priority  
 
@@ -13,11 +13,9 @@ def create_task(request):
         description = request.POST.get('description')
         category = request.POST.get('category')
         
-
         # The AI module parses the input fields to evaluate urgency
         calculated_priority = analyze_task_priority(title, description)
         
-  
         Task.objects.create(
             title=title,
             description=description,
@@ -27,3 +25,18 @@ def create_task(request):
         return redirect('task_list')
         
     return render(request, 'tasks/task_form.html')
+
+# 🚀 Day 6 Additions: Workflow Lifecycle Controls
+
+def complete_task(request, task_id):
+    """Updates the task status choice to 'Completed'."""
+    task = get_object_or_404(Task, id=task_id)
+    task.status = 'Completed'
+    task.save()
+    return redirect('task_list')
+
+def delete_task(request, task_id):
+    """Permanently deletes the task record from the SQLite database."""
+    task = get_object_or_404(Task, id=task_id)
+    task.delete()
+    return redirect('task_list')

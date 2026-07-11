@@ -20,7 +20,16 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; text-transform: uppercase; }
         .badge-status { background-color: #e0e0e0; color: #333; }
         .badge-priority { background-color: #34495e; color: white; }
-        .task-meta { margin-top: 10px; font-size: 0.9em; color: #7f8c8d; }
+        .task-meta { margin-top: 10px; font-size: 0.9em; color: #7f8c8d; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 🚀 Day 6 Action Control Styles */
+        .task-actions { display: flex; gap: 10px; align-items: center; }
+        .action-link { text-decoration: none; font-size: 0.9em; font-weight: 600; padding: 5px 10px; border-radius: 4px; transition: background-color 0.2s; }
+        .btn-complete { color: #27ae60; border: 1px solid #27ae60; }
+        .btn-complete:hover { background-color: #e8f8f5; }
+        .btn-delete { color: #c0392b; border: 1px solid #c0392b; }
+        .btn-delete:hover { background-color: #fdebd0; }
+        .status-completed { color: #7f8c8d; font-style: italic; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -41,8 +50,25 @@
                         </div>
                     </div>
                     <p style="margin: 10px 0 0 0; color: #555;">{{ task.description }}</p>
+                    
                     <div class="task-meta">
-                        <strong>Category:</strong> {{ task.category }} | <strong>Created:</strong> {{ task.created_at|date:"M d, Y H:i" }}
+                        <div>
+                            <strong>Category:</strong> {{ task.category }} | <strong>Created:</strong> {{ task.created_at|date:"M d, Y H:i" }}
+                        </div>
+                        
+                        <div class="task-actions">
+                            {% if task.status != 'Completed' %}
+                                <a href="{% url 'complete_task' task.id %}" class="action-link btn-complete">✓ Complete</a>
+                            {% else %}
+                                <span class="status-completed">🎉 Done</span>
+                            {% endif %}
+                            
+                            <a href="{% url 'delete_task' task.id %}" 
+                               class="action-link btn-delete" 
+                               onclick="return confirm('Are you sure you want to permanently delete this task?');">
+                                🗑️ Delete
+                            </a>
+                        </div>
                     </div>
                 </div>
             {% endfor %}

@@ -1,49 +1,50 @@
 import os
-from google import genai
-from google.genai import types
+from groq import Groq
 
 def analyze_task_priority(title, description):
     """
-    Leverages Google's Gemini LLM to semantically analyze the task
-    context and return an accurate priority tag.
+    Leverages Meta's Llama 3 model via Groq Cloud to semantically 
+    analyze task details and assign an automated priority tier.
     """
-    # 1. Grab your API key safely from environment variables
-    api_key = os.environ.get("GEMINI_API_KEY")
+    # 1. Grab your Groq API key safely from environment variables
+    api_key = os.environ.get("GROQ_API_KEY")
     
-    # Fallback to safe default if you haven't set up the key yet
     if not api_key:
+        print("⚠️ DEBUG: GROQ_API_KEY is missing from environment variables!")
         return "Medium"
         
     try:
-        # 2. Initialize the official Gemini client
-        client = genai.Client(api_key=api_key)
+        # 2. Initialize the official Groq client
+        client = Groq(api_key=api_key)
         
-        # 3. Create a strict prompt instructing the AI how to behave
-        prompt = f"""
-        You are an AI backend module for a project management tool.
-        Analyze the following task and categorize its priority strictly as 'Low', 'Medium', or 'High'.
-        Consider factors like systemic urgency, blockages, or routine maintenance.
+        # 3. Formulate a system message + user prompt to force strict output
+        system_instruction = "You are a backend classification module. You must respond with exactly ONE word from these choices: Low, Medium, High. Do not include any punctuation, spaces, or explanations."
         
-        Task Title: {title}
-        Task Description: {description}
+        user_prompt = f"Task Title: {title}\nTask Description: {description}"
         
-        Respond with exactly ONE word from these options: Low, Medium, High. Do not include punctuation or explanations.
-        """
-        
-        # 4. Generate content using the lightweight, fast gemini-2.5-flash model
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
+        # 4. Trigger the chat completion using a rock-solid model ID
+        completion = client.chat.completions.create(
+            model="llama-3.1-8b-instant",  # Blazing fast and highly precise for classification
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.0,  # 0.0 minimizes creativity and forces strict rule-following
+            max_tokens=5      # Keeps token limits tiny
         )
         
-        # 5. Clean up the response text
-        result = response.text.strip()
+        # 5. Extract and aggressively sanitize the output text
+        # .replace(".", "") strips out rogue accidental periods
+        result = completion.choices[0].message.content.strip().replace(".", "").capitalize()
+        
+        print(f"🤖 AI RAW RESPONSE: '{result}'")  # Look at your VS Code terminal for this!
         
         if result in ['Low', 'Medium', 'High']:
             return result
             
-        return "Medium" # Fallback if the AI gives an unexpected response
+        print(f"⚠️ DEBUG: AI returned invalid option '{result}', defaulting to Medium.")
+        return "Medium"  
         
     except Exception as e:
-        print(f"AI Engine Error: {e}")
-        return "Medium" # Fallback if the network request fails
+        print(f"❌ Groq AI Engine Error: {e}")
+        return "Medium"
