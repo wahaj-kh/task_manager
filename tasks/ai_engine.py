@@ -14,30 +14,29 @@ def analyze_task_priority(title, description):
         return "Medium"
         
     try:
-        # 2. Initialize the official Groq client
+
         client = Groq(api_key=api_key)
         
-        # 3. Formulate a system message + user prompt to force strict output
+ 
         system_instruction = "You are a backend classification module. You must respond with exactly ONE word from these choices: Low, Medium, High. Do not include any punctuation, spaces, or explanations."
         
         user_prompt = f"Task Title: {title}\nTask Description: {description}"
         
-        # 4. Trigger the chat completion using a rock-solid model ID
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # Blazing fast and highly precise for classification
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.0,  # 0.0 minimizes creativity and forces strict rule-following
-            max_tokens=5      # Keeps token limits tiny
+            temperature=0.0,
+            max_tokens=5,
+            timeout=2.5     
         )
         
-        # 5. Extract and aggressively sanitize the output text
-        # .replace(".", "") strips out rogue accidental periods
+
         result = completion.choices[0].message.content.strip().replace(".", "").capitalize()
         
-        print(f"🤖 AI RAW RESPONSE: '{result}'")  # Look at your VS Code terminal for this!
+        print(f"🤖 AI RAW RESPONSE: '{result}'")  
         
         if result in ['Low', 'Medium', 'High']:
             return result

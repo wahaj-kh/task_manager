@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task
 from .ai_engine import analyze_task_priority  
+from django.contrib import messages
 
 def task_list(request):
     tasks = Task.objects.all().order_by('-created_at')
@@ -12,9 +13,14 @@ def create_task(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         category = request.POST.get('category')
-        
-        # The AI module parses the input fields to evaluate urgency
+
         calculated_priority = analyze_task_priority(title, description)
+        
+  
+        if calculated_priority == "Medium" and "urgent" in title.lower():
+            messages.warning(request, "⚠️ AI Priority Engine is currently offline. Assigned default 'Medium' safety tier.")
+        else:
+            messages.success(request, f"✅ Task logged successfully! AI assigned: {calculated_priority} Priority.")
         
         Task.objects.create(
             title=title,
@@ -26,7 +32,7 @@ def create_task(request):
         
     return render(request, 'tasks/task_form.html')
 
-# 🚀 Day 6 Additions: Workflow Lifecycle Controls
+
 
 def complete_task(request, task_id):
     """Updates the task status choice to 'Completed'."""
